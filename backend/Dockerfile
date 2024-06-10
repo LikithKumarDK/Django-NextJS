@@ -1,4 +1,4 @@
-# Use the official Python image as a base
+# Use the official Python 3.10 image as a base
 FROM python:3.10
 
 # Set environment variables
@@ -12,13 +12,15 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /code/
+# Copy the current directory contents into the container at /app/
 COPY . /app/
+
+# Copy the wait script and superuser creation script
+COPY wait_for_db.py /app/
+COPY create_superuser.py /app/
 
 # Expose the port
 EXPOSE 8000
 
-# Run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-# Run migration and create superuser
-# CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser --noinput && echo 'Superuser credentials: username=admin password=admin' && python manage.py runserver 0.0.0.0:8000"]
+# Run the wait script, make migrations, apply migrations, create superuser, and start the server
+CMD ["sh", "-c", "python wait_for_db.py && python manage.py makemigrations && python manage.py migrate && python create_superuser.py && python manage.py runserver 0.0.0.0:8000"]
