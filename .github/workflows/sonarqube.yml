@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 'feature/*'
   pull_request:
     branches:
       - master
@@ -14,24 +13,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
 
-    - name: Install dependencies
-      run: npm install
+      - name: Navigate to frontend directory and install dependencies
+        working-directory: ./frontend
+        run: npm install
 
-    - name: Run SonarQube Scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        npm install -g sonarqube-scanner
-        sonar-scanner \
-          -Dsonar.projectKey=DJANGONEXTFULLSTACK \
-          -Dsonar.sources=./ \
-          -Dsonar.host.url=http://localhost:9000 \
-          -Dsonar.token=$SONAR_TOKEN
+      - name: Run SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        working-directory: ./frontend
+        run: |
+          npm install -g sonarqube-scanner
+          sonar-scanner \
+            -Dsonar.projectKey=DJANGONEXTFULLSTACK \
+            -Dsonar.sources=./ \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.login=$SONAR_TOKEN
